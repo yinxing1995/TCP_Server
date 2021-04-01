@@ -12,7 +12,7 @@ WSADATA wsaData;
 
 int main(int argc, char* argv[])
 {
-    wVersionRequested = MAKEWORD(1, 1);
+    wVersionRequested = MAKEWORD(2, 2);
     WSAStartup(wVersionRequested, &wsaData);
     perror("WSAStartup error");
 
@@ -37,14 +37,16 @@ int main(int argc, char* argv[])
         close(sockfd);
         return -1;
     }
+    for(int i=0; h->h_addr_list[i]; i++){
+            printf("IP addr %d: %s\n", i+1, inet_ntoa( *(struct in_addr*)h->h_addr_list[i] ) );
+        }
     struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof(servaddr));
 
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(atoi(argv[2]));
-    servaddr.sin_addr.S_un.S_addr = inet_addr(argv[1]);
-    printf("h->h_addr = %s", h->h_addr);
-    //memcpy(&servaddr.sin_addr, h->h_addr, h->h_length);
+    //servaddr.sin_addr.S_un.S_addr = inet_addr(argv[1]);
+    memcpy(&servaddr.sin_addr, h->h_addr, h->h_length);
     printf("IP = %s , Port = %s\n", argv[1], argv[2]);
     if(connect(sockfd, (struct sockaddr *)&servaddr,sizeof(servaddr)) != 0)
     {

@@ -1,5 +1,5 @@
 # Debug files
-build*/*
+TCP_Client_Qt/build*/*
 
 # Executive Files
 server
