@@ -1,6 +1,9 @@
 # Debug files
 build*/*
 
+# Executive Files
+server
+
 # Prerequisites
 *.d
 
