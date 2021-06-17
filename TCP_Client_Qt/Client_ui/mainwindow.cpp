@@ -7,14 +7,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     this -> setWindowTitle(tr("Fire Detecting System"));
-    this -> resize(600,400);
+    this -> resize(800,600);
     Load_UI();
-    /*
-    Box = new QLabel(this);
-    Box -> move(150, 100);
-    Box -> setText(tr("UI is under designing"));
-    */
-
 }
 
 MainWindow::~MainWindow()
@@ -23,41 +17,57 @@ MainWindow::~MainWindow()
 
 void MainWindow::Load_UI()
 {
-    StackedWidget = new QStackedWidget(this);
+    MainWidget = new QWidget;
+    WidgetP1 = new QWidget;
+    WidgetP2 = new QWidget;
+    WidgetP3 = new QWidget;
+    WidgetP4 = new QWidget;
+    Status = new QLabel;
 
-    Infrared = new QPushButton(this);
+    StackedWidget = new QStackedWidget(MainWidget);
+    GridLayout = new QGridLayout(MainWidget);
+
+
+    setCentralWidget(MainWidget);
+
+    this->centralWidget()->setLayout(GridLayout);
+
+    Infrared = new QPushButton(MainWidget);
     Infrared -> setText(tr("IR"));
-    Infrared -> move(450,25);
 
-    Temp_Humi = new QPushButton(this);
+    Temp_Humi = new QPushButton(MainWidget);
     Temp_Humi -> setText(tr("TH"));
-    Temp_Humi -> move(450,125);
 
-    Light = new QPushButton(this);
+    Light = new QPushButton(MainWidget);
     Light -> setText(tr("LI"));
-    Light -> move(450,225);
 
-    Equipment = new QPushButton(this);
+    Equipment = new QPushButton(MainWidget);
     Equipment -> setText(tr("EQ"));
-    Equipment -> move(450,325);
 
-    Box1 = new QLabel(this);
-    Box2 = new QLabel(this);
-    Box3 = new QLabel(this);
-    Box4 = new QLabel(this);
+    GridLayout -> addWidget(Infrared,0,3,1,1,Qt::AlignCenter);
+    GridLayout -> addWidget(Temp_Humi,1,3,1,1,Qt::AlignCenter);
+    GridLayout -> addWidget(Light,2,3,1,1,Qt::AlignCenter);
+    GridLayout -> addWidget(Equipment,3,3,1,1,Qt::AlignCenter);
+    GridLayout -> addWidget(Status,4,0,1,4,Qt::AlignLeft|Qt::AlignVCenter);
+    GridLayout -> addWidget(StackedWidget,0,0,4,3);
 
-    Box1 -> setText(tr("Infrared Sensor"));
-    Box2 -> setText(tr("Temprature & Humidity"));
-    Box3 -> setText(tr("Light sensor"));
-    Box4 -> setText(tr("Equipment"));
+    SubTitle1 = new QLabel(WidgetP1);
+    SubTitle2 = new QLabel(WidgetP2);
+    SubTitle3 = new QLabel(WidgetP3);
+    SubTitle4 = new QLabel(WidgetP4);
 
-    StackedWidget -> addWidget(Box1);
-    StackedWidget -> addWidget(Box2);
-    StackedWidget -> addWidget(Box3);
-    StackedWidget -> addWidget(Box4);
+    SubTitle1 -> setText("Infrared Sensor");
+    SubTitle2 -> setText("Temprature & Humidity");
+    SubTitle3 -> setText("Light sensor");
+    SubTitle4 -> setText("Equipment");
 
-    StackedWidget -> resize(600,400);
-    StackedWidget -> move(200,-150);
+
+    //Status->setStyleSheet("background-color:green;");
+
+    StackedWidget -> addWidget(WidgetP1);
+    StackedWidget -> addWidget(WidgetP2);
+    StackedWidget -> addWidget(WidgetP3);
+    StackedWidget -> addWidget(WidgetP4);
 
     connect(Infrared,SIGNAL(clicked()),this,SLOT(SwitchPage_IR()));
     connect(Temp_Humi,SIGNAL(clicked()),this,SLOT(SwitchPage_TH()));
@@ -65,10 +75,27 @@ void MainWindow::Load_UI()
     connect(Equipment,SIGNAL(clicked()),this,SLOT(SwitchPage_EQ()));
 }
 
+void MainWindow::Load_PageIR()
+{}
+
+void MainWindow::Load_PageTH()
+{}
+
+void MainWindow::Load_PageLI()
+{}
+
+void MainWindow::Load_PageEQ()
+{}
+
+void MainWindow::Load_Status()
+{
+    //Status = new QLabel(WidgetStatus);
+    Status -> setText(tr("Initialized"));
+}
+
 void MainWindow::SwitchPage_IR()
 {
     StackedWidget -> setCurrentIndex(PAGE_IR);
-    Box1->move(0,0);
 }
 
 void MainWindow::SwitchPage_TH()
@@ -109,7 +136,7 @@ void UI_Thread::run()
         }
         else
         {
-            //UI.Box -> setText(*Message);
+            UI.Status -> setText(*Message);
             delete Message;
             msleep(5);
         }

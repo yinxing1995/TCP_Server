@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <QLayout>
 
 #define PAGE_IR 0
 #define PAGE_TH 1
@@ -21,11 +22,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    QLabel *Status;
+
 private:
-    QLabel *Box1;
-    QLabel *Box2;
-    QLabel *Box3;
-    QLabel *Box4;
+    QLabel *SubTitle1;
+    QLabel *SubTitle2;
+    QLabel *SubTitle3;
+    QLabel *SubTitle4;
 
     QPushButton *Infrared;
     QPushButton *Temp_Humi;
@@ -33,8 +36,20 @@ private:
     QPushButton *Equipment;
 
     QStackedWidget *StackedWidget;
+    QGridLayout *GridLayout;
+
+    QWidget *MainWidget;
+    QWidget *WidgetP1;
+    QWidget *WidgetP2;
+    QWidget *WidgetP3;
+    QWidget *WidgetP4;
 
     void Load_UI();
+    void Load_PageIR();
+    void Load_PageTH();
+    void Load_PageLI();
+    void Load_PageEQ();
+    void Load_Status();
 
 private slots:
     void SwitchPage_IR();
