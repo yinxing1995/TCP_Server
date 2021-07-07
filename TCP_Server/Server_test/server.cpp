@@ -7,9 +7,18 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 using namespace std;
 extern int errno;
+int net_lfd = 0,net_cfd = 0;
+void func(int arg)
+{
+	close(net_lfd);
+	close(net_cfd);
+	printf("closed\r\n");
+	exit(0);
+}
 
 int main(int argc, char *argv[])
 {
@@ -27,6 +36,7 @@ int main(int argc, char *argv[])
 		perror("socket");
 		return -1;
 	}
+	net_lfd = listenfd;
 
 	//step 2. Bind server to socket
 	struct sockaddr_in servaddr;
@@ -58,29 +68,38 @@ int main(int argc, char *argv[])
 	struct sockaddr_in clientaddr;
 	cout << "Waiting for Connection\n" << endl;
 	clientfd = accept(listenfd, (struct sockaddr *)&clientaddr, (socklen_t *)&socklen);
+	net_cfd = clientfd;
 	cout << "Client" << inet_ntoa(clientaddr.sin_addr) << " connected.\n" << endl;
 	char buffer[1024];
 
 	//step 5. Communicate with client
+	signal(SIGINT,func);
 	while(1)
 	{
 		int iret;
 		memset(buffer, 0, sizeof(buffer));
+		/*
 		if((iret = recv(clientfd, buffer ,sizeof(buffer),0) <= 0))
 		{
 			cout << "iret = " << iret << endl;
 			break;
 		}
-
-		if((iret = send(clientfd, "I am server" ,sizeof(buffer),0) <= 0))
+		else
+		{
+			cout << "recv:" << buffer << endl;
+		}
+		*/
+		cout << "Try to send" << endl;
+		if((iret = send(clientfd, "I am server" ,strlen("I am server"),0) <= 0))
 		{
 			cerr << errno << endl;
 			perror("send");
-			break;
 		}
+		sleep(2);
 	}
 
 	//step 6. Close socket
+	cout << "Program exits" << endl;
 	close(listenfd);
 	close(clientfd);
 	return 0;
