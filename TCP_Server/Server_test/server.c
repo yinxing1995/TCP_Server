@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <pthread.h>
+#include "ringbuffer_reusable.h"
 
 extern int errno;
 
@@ -23,21 +24,23 @@ void *client_processing(void *sock_fd)
 	struct timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
-	char buffer[1024];
+	char temp_buffer[300];
+	char p[500];
+	Ringbuf *ringbuf = BufferInit(p,sizeof(p));
 	while(1)
 	{
-
-
 		FD_ZERO(&rfds);
 		FD_SET(clientfd,&rfds);
 		sret = select(clientfd+1,&rfds,NULL,NULL,&timeout);
 		if(sret)
 		{
-			memset(buffer,0,sizeof(buffer));
-			recv = read(clientfd,buffer,sizeof(buffer));
+			//memset(buffer,0,sizeof(buffer));
+			recv = read(clientfd,temp_buffer,sizeof(temp_buffer));
 			if(recv > 0)
 			{
-				printf("buffer:%s\r\n",buffer);
+				//printf("buffer:%s\r\n",buffer);
+				BufferWrite(ringbuf, temp_buffer, recv);
+				printf("Recv %d bytes",recv);
 			}
 			else
 			{
@@ -45,15 +48,15 @@ void *client_processing(void *sock_fd)
 					printf("Do not close socket\r\n");
 				else
 				{
+
 					close(clientfd);
 					printf("connection closed\r\n");
 					break;
 				}
 			}
 		}
-		write(clientfd,"I am server",strlen("I am server"));
-		sleep(1);
 	}
+	BufferRelease(ringbuf);
 }	
 
 int main(int argc, char *argv[])
@@ -139,6 +142,6 @@ int main(int argc, char *argv[])
 	//step 6. Close socket
 	printf("Program exit!\r\n");
 	close(listenfd);
-	close(clientfd);
+	//close(clientfd);
 	return 0;
 }
