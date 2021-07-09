@@ -61,7 +61,11 @@ int main(int argc, char *argv[])
 {
 	if(argc != 2)
 	{
+<<<<<<< HEAD
 		cout << "Using:./server port\nExample:./server 5005\r\n" << endl;
+=======
+		cout << "Using:./server port\r\nExample:./server 5005\r\n" << endl;
+>>>>>>> 0d9093f262b1f1dae9978811b686b828eb809365
 		return -1;
 	}
 
