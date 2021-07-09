@@ -6,11 +6,12 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 #include <signal.h>
 #include <pthread.h>
 #include "ringbuffer_reusable.h"
-
+#include "dataprocessing.h"
 extern int errno;
 
 static void func(int arg)
@@ -27,6 +28,9 @@ void *client_processing(void *sock_fd)
 	char temp_buffer[300];
 	char p[500];
 	Ringbuf *ringbuf = BufferInit(p,sizeof(p));
+	struct timeval statetime;
+	statetime.tv_sec = 10;
+	statetime.tv_usec = 0;
 	while(1)
 	{
 		FD_ZERO(&rfds);
@@ -40,7 +44,7 @@ void *client_processing(void *sock_fd)
 			{
 				//printf("buffer:%s\r\n",buffer);
 				BufferWrite(ringbuf, temp_buffer, recv);
-				printf("Recv %d bytes",recv);
+				printf("Recv %d bytes\r\n",recv);
 			}
 			else
 			{
@@ -55,6 +59,7 @@ void *client_processing(void *sock_fd)
 				}
 			}
 		}
+		Statemachine(ringbuf,clientfd,&statetime);
 	}
 	BufferRelease(ringbuf);
 }	

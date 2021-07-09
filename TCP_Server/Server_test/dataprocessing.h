@@ -1,0 +1,53 @@
+#ifndef DARAPROCESSING_H
+#define DARAPROCESSING_H
+
+#include <sys/time.h>
+#include <stdint.h>
+#include "ringbuffer_reusable.h"
+//typedef struct timer_list timer; 
+
+enum States
+{
+    Recog = 0x00,
+    Init = 0x01,
+    GetLen = 0x02,
+    FramePick = 0x03,
+    DataUpdate = 0x04,
+};
+
+enum Device
+{
+    Gateway = 0x00,
+    Monitor = 0x01,
+};
+
+enum FrameType
+{
+    REPORT = 0x00,
+    CHECK = 0x01,
+    NETSTATUS = 0x02,
+};
+
+enum DataType
+{
+    _INT = 0x00,
+    _FLOAT = 0x01,
+};
+
+typedef struct ClusterStructure
+{
+    //timer * Timer;
+    uint8_t NodeID;
+    uint8_t ClusterID;
+    //char * Description;
+    uint8_t Endpoint;
+    uint8_t DataType;
+    uint8_t DataLength;
+    void * Data;
+    uint8_t ControlFlag;
+    struct ClusterStructure *next;
+}ClusterArray;
+
+int Statemachine(Ringbuf *, int, struct timeval *);
+
+#endif
