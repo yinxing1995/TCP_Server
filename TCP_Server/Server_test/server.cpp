@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
 	if(argc != 2)
 	{
-		cout << "Using:./server port\nExample:./server 5005\n\n" << endl;
+		cout << "Using:./server port\r\nExample:./server 5005\r\n" << endl;
 		return -1;
 	}
 
