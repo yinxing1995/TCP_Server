@@ -8,23 +8,60 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <pthread.h>
 
 using namespace std;
 extern int errno;
-int net_lfd = 0,net_cfd = 0;
-void func(int arg)
+
+static void func(int arg)
+{}
+
+void *client_processing(void *sock_fd)
 {
-	close(net_lfd);
-	close(net_cfd);
-	printf("closed\r\n");
-	exit(0);
-}
+	int clientfd = *((int *)sock_fd);
+	int recv,sret;
+	fd_set rfds;
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+	char buffer[1024];
+	while(1)
+	{
+
+
+		FD_ZERO(&rfds);
+		FD_SET(clientfd,&rfds);
+		sret = select(clientfd+1,&rfds,NULL,NULL,&timeout);
+		if(sret)
+		{
+			memset(buffer,0,sizeof(buffer));
+			recv = read(clientfd,buffer,sizeof(buffer));
+			if(recv > 0)
+			{
+				cout << buffer << endl;
+			}
+			else
+			{
+				if(errno == EINTR)
+					cout << "do not close socket" << endl;
+				else
+				{
+					close(clientfd);
+					cout << "connection closed" << endl;
+					break;
+				}
+			}
+		}
+		write(clientfd,"I am server",strlen("I am server"));
+		sleep(1);
+	}
+}	
 
 int main(int argc, char *argv[])
 {
 	if(argc != 2)
 	{
-		cout << "Using:./server port\nExample:./server 5005\n\n" << endl;
+		cout << "Using:./server port\nExample:./server 5005\r\n" << endl;
 		return -1;
 	}
 
@@ -36,7 +73,6 @@ int main(int argc, char *argv[])
 		perror("socket");
 		return -1;
 	}
-	net_lfd = listenfd;
 
 	//step 2. Bind server to socket
 	struct sockaddr_in servaddr;
@@ -66,19 +102,25 @@ int main(int argc, char *argv[])
 	int clientfd;
 	int socklen = sizeof(struct sockaddr_in);
 	struct sockaddr_in clientaddr;
-	cout << "Waiting for Connection\n" << endl;
-	clientfd = accept(listenfd, (struct sockaddr *)&clientaddr, (socklen_t *)&socklen);
-	net_cfd = clientfd;
-	cout << "Client" << inet_ntoa(clientaddr.sin_addr) << " connected.\n" << endl;
+	while(1)
+	{
+		cout << "Waiting for Connection\n" << endl;
+		clientfd = accept(listenfd, (struct sockaddr *)&clientaddr, (socklen_t *)&socklen);
+		cout << "Client" << inet_ntoa(clientaddr.sin_addr) << " connected.\n" << endl;
+		pthread_t tid;
+		pthread_create(&tid, NULL, client_processing, (void *)(&clientfd));
+	}	
+	signal(SIGPIPE,func);
+	/*
 	char buffer[1024];
 
 	//step 5. Communicate with client
-	signal(SIGINT,func);
+
 	while(1)
 	{
 		int iret;
 		memset(buffer, 0, sizeof(buffer));
-		/*
+		
 		if((iret = recv(clientfd, buffer ,sizeof(buffer),0) <= 0))
 		{
 			cout << "iret = " << iret << endl;
@@ -88,7 +130,7 @@ int main(int argc, char *argv[])
 		{
 			cout << "recv:" << buffer << endl;
 		}
-		*/
+		
 		cout << "Try to send" << endl;
 		if((iret = send(clientfd, "I am server" ,strlen("I am server"),0) <= 0))
 		{
@@ -96,7 +138,7 @@ int main(int argc, char *argv[])
 			perror("send");
 		}
 		sleep(2);
-	}
+	}*/
 
 	//step 6. Close socket
 	cout << "Program exits" << endl;
