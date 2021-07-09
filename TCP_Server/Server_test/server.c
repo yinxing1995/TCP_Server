@@ -1,4 +1,4 @@
-#include <iostream>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -10,7 +10,6 @@
 #include <signal.h>
 #include <pthread.h>
 
-using namespace std;
 extern int errno;
 
 static void func(int arg)
@@ -38,16 +37,16 @@ void *client_processing(void *sock_fd)
 			recv = read(clientfd,buffer,sizeof(buffer));
 			if(recv > 0)
 			{
-				cout << buffer << endl;
+				printf("buffer:%s\r\n",buffer);
 			}
 			else
 			{
 				if(errno == EINTR)
-					cout << "do not close socket" << endl;
+					printf("Do not close socket\r\n");
 				else
 				{
 					close(clientfd);
-					cout << "connection closed" << endl;
+					printf("connection closed\r\n");
 					break;
 				}
 			}
@@ -61,7 +60,7 @@ int main(int argc, char *argv[])
 {
 	if(argc != 2)
 	{
-		cout << "Using:./server port\r\nExample:./server 5005\r\n" << endl;
+		printf("Using:./server port\r\nExample:./server 5005\r\n");
 		return -1;
 	}
 
@@ -69,7 +68,6 @@ int main(int argc, char *argv[])
 	int listenfd;
 	if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		cerr << errno << endl;
 		perror("socket");
 		return -1;
 	}
@@ -83,7 +81,6 @@ int main(int argc, char *argv[])
 	servaddr.sin_port = htons(atoi(argv[1]));
 	if(bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
 	{
-		cerr << errno << endl;
 		perror("bind");
 		close(listenfd);
 		return -1;
@@ -92,7 +89,6 @@ int main(int argc, char *argv[])
 	//step 3. Set "listenfd" as monitor
 	if((listen(listenfd, 5) != 0))
 	{
-		cerr << errno << endl;
 		perror("listen");
 		close(listenfd);
 		return -1;
@@ -104,9 +100,9 @@ int main(int argc, char *argv[])
 	struct sockaddr_in clientaddr;
 	while(1)
 	{
-		cout << "Waiting for Connection\n" << endl;
+		printf("Waiting for connection\r\n");
 		clientfd = accept(listenfd, (struct sockaddr *)&clientaddr, (socklen_t *)&socklen);
-		cout << "Client" << inet_ntoa(clientaddr.sin_addr) << " connected.\n" << endl;
+		printf("Client %s connected\r\n",inet_ntoa(clientaddr.sin_addr));
 		pthread_t tid;
 		pthread_create(&tid, NULL, client_processing, (void *)(&clientfd));
 	}	
@@ -141,7 +137,7 @@ int main(int argc, char *argv[])
 	}*/
 
 	//step 6. Close socket
-	cout << "Program exits" << endl;
+	printf("Program exit!\r\n");
 	close(listenfd);
 	close(clientfd);
 	return 0;
