@@ -26,8 +26,13 @@ void *client_processing(void *sock_fd)
 	char temp_buffer[300];
 	char p[500];
 	Ringbuf *ringbuf = BufferInit(p,sizeof(p));
+	ClientInfo *pointer = (ClientInfo *)malloc(sizeof(ClientInfo));
+	/*
 	int State = Recog;
 	int Device = Unknown;
+	*/
+	pointer->State = Recog;
+	pointer->Device = Unknown;
 	while(1)
 	{
 		FD_ZERO(&rfds);
@@ -56,7 +61,7 @@ void *client_processing(void *sock_fd)
 				}
 			}
 		}
-		if(Statemachine(ringbuf,clientfd,&State,&Device))
+		if(Statemachine(ringbuf,clientfd,pointer))
 			close(clientfd);
 	}
 	BufferRelease(ringbuf);

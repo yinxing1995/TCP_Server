@@ -35,6 +35,12 @@ enum DataType
     _FLOAT = 0x01,
 };
 
+typedef struct Client
+{
+    int Device;
+    int State;
+}ClientInfo;
+
 typedef struct ClusterStructure
 {
     //timer * Timer;
@@ -49,7 +55,7 @@ typedef struct ClusterStructure
     struct ClusterStructure *next;
 }ClusterArray;
 
-int Statemachine(Ringbuf *, int, int *, int *);
+int Statemachine(Ringbuf *, int,ClientInfo *);
 
 #endif
 

@@ -11,9 +11,9 @@
 //static int State = Recog;
 //static int Device = Gateway;
 
-int Statemachine(Ringbuf *Buffer,int Socketfd,int *State,int *Device)
+int Statemachine(Ringbuf *Buffer,int Socketfd,ClientInfo *pointer)
 {
-	switch(*State)
+	switch(pointer->State)
 	{
 		case Recog:
 			;
@@ -24,8 +24,8 @@ int Statemachine(Ringbuf *Buffer,int Socketfd,int *State,int *Device)
 				if(!strcmp(GATEWAYFLAG,tbuf))
 				{
 					printf("Gateway connected\r\n");
-					*Device = Gateway;
-					*State = Init;
+					pointer->Device = Gateway;
+					pointer->State = Init;
 					BufferRead(Buffer,tbuf,strlen(GATEWAYFLAG));		
 					break;
 				}
@@ -35,8 +35,8 @@ int Statemachine(Ringbuf *Buffer,int Socketfd,int *State,int *Device)
 				if(!strcmp(MONITORFLAG,tbuf))
 				{
 					printf("Monitor connected\r\n");
-					*Device =  Monitor;
-					*State = Init;
+					pointer->Device = Monitor;
+					pointer->State = Init;
 					BufferRead(Buffer,tbuf,strlen(GATEWAYFLAG));
 					break;
 				}
