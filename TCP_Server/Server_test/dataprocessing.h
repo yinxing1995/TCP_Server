@@ -17,8 +17,9 @@ enum States
 
 enum Device
 {
-    Gateway = 0x00,
-    Monitor = 0x01,
+    Unknown = 0x00,
+    Gateway = 0x01,
+    Monitor = 0x02,
 };
 
 enum FrameType
@@ -48,6 +49,7 @@ typedef struct ClusterStructure
     struct ClusterStructure *next;
 }ClusterArray;
 
-int Statemachine(Ringbuf *, int, struct timeval *);
+int Statemachine(Ringbuf *, int, int *, int *);
 
 #endif
+

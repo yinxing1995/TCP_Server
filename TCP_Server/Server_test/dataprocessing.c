@@ -8,12 +8,12 @@
 #define MONITORFLAG "Monitor:"
 #define LEN_ID 3
 
-static int State = Recog;
-static int Device = Gateway;
+//static int State = Recog;
+//static int Device = Gateway;
 
-int Statemachine(Ringbuf *Buffer,int Socketfd,struct timeval* timeout)
+int Statemachine(Ringbuf *Buffer,int Socketfd,int *State,int *Device)
 {
-	switch(State)
+	switch(*State)
 	{
 		case Recog:
 			;
@@ -24,8 +24,8 @@ int Statemachine(Ringbuf *Buffer,int Socketfd,struct timeval* timeout)
 				if(!strcmp(GATEWAYFLAG,tbuf))
 				{
 					printf("Gateway connected\r\n");
-					Device = Gateway;
-					State = Init;
+					*Device = Gateway;
+					*State = Init;
 					BufferRead(Buffer,tbuf,strlen(GATEWAYFLAG));		
 					break;
 				}
@@ -35,8 +35,8 @@ int Statemachine(Ringbuf *Buffer,int Socketfd,struct timeval* timeout)
 				if(!strcmp(MONITORFLAG,tbuf))
 				{
 					printf("Monitor connected\r\n");
-					Device =  Monitor;
-					State = Init;
+					*Device =  Monitor;
+					*State = Init;
 					BufferRead(Buffer,tbuf,strlen(GATEWAYFLAG));
 					break;
 				}
@@ -48,14 +48,16 @@ int Statemachine(Ringbuf *Buffer,int Socketfd,struct timeval* timeout)
 			}
 			else
 			{
-				printf("Buffer not ready\r\n");
-				sleep(1);
-				if(!(timeout->tv_sec|timeout->tv_usec))
+				//printf("Buffer not ready\r\n");
+				if(0)
+				{
+					printf("Overtime\r\n");
 					return -1;
+				}
 				break;
 			}
 		case Init:
-			printf("Device Recognized\r\n");
+			//printf("Device Recognized\r\n");
 			sleep(1);
 			break;
 		default:
@@ -63,4 +65,5 @@ int Statemachine(Ringbuf *Buffer,int Socketfd,struct timeval* timeout)
 			return -1;			
 
 	}
+	return 0;
 }

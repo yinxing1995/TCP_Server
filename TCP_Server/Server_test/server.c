@@ -22,15 +22,12 @@ void *client_processing(void *sock_fd)
 	int clientfd = *((int *)sock_fd);
 	int recv,sret;
 	fd_set rfds;
-	struct timeval timeout;
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
+	struct timeval timeout = {0,0};
 	char temp_buffer[300];
 	char p[500];
 	Ringbuf *ringbuf = BufferInit(p,sizeof(p));
-	struct timeval statetime;
-	statetime.tv_sec = 10;
-	statetime.tv_usec = 0;
+	int State = Recog;
+	int Device = Unknown;
 	while(1)
 	{
 		FD_ZERO(&rfds);
@@ -59,7 +56,8 @@ void *client_processing(void *sock_fd)
 				}
 			}
 		}
-		Statemachine(ringbuf,clientfd,&statetime);
+		if(Statemachine(ringbuf,clientfd,&State,&Device))
+			close(clientfd);
 	}
 	BufferRelease(ringbuf);
 }	
