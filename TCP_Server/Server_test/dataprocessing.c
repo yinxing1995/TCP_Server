@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -11,7 +12,7 @@
 //static int State = Recog;
 //static int Device = Gateway;
 
-int Statemachine(int Socketfd,ClientInfo *pointer)
+int Statemachine(ClientInfo *pointer)
 {
 	switch(pointer->State)
 	{
@@ -57,8 +58,15 @@ int Statemachine(int Socketfd,ClientInfo *pointer)
 				break;
 			}
 		case Init:
-			//printf("Device Recognized\r\n");
-			sleep(1);
+			memset(tbuf,'\0',sizeof(tbuf));
+			if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
+				break;
+			printf("tbuf = %s\r\n",tbuf);
+			pointer->Clientfd = atoi(tbuf);
+			printf("ID = %d\r\n",pointer->Clientfd);
+			pointer->State = Datapro;
+			break;
+		case Datapro:
 			break;
 		default:
 			printf("Unknown error!\r\n");

@@ -19,32 +19,26 @@ static void func(int arg)
 
 void *client_processing(void *sock_fd)
 {
-	int clientfd = *((int *)sock_fd);
 	int recv,sret;
 	fd_set rfds;
 	struct timeval timeout = {0,0};
 	char temp_buffer[300];
 	char p[500];
 	ClientInfo *pointer = (ClientInfo *)malloc(sizeof(ClientInfo));
-	/*
-	int State = Recog;
-	int Device = Unknown;
-	*/
+	pointer->Clientfd = *((int *)sock_fd);
 	pointer->Recv = BufferInit(p,sizeof(p));
 	pointer->State = Recog;
 	pointer->Device = Unknown;
 	while(1)
 	{
 		FD_ZERO(&rfds);
-		FD_SET(clientfd,&rfds);
-		sret = select(clientfd+1,&rfds,NULL,NULL,&timeout);
+		FD_SET(pointer->Clientfd,&rfds);
+		sret = select(pointer->Clientfd+1,&rfds,NULL,NULL,&timeout);
 		if(sret)
 		{
-			//memset(buffer,0,sizeof(buffer));
-			recv = read(clientfd,temp_buffer,sizeof(temp_buffer));
+			recv = read(pointer->Clientfd,temp_buffer,sizeof(temp_buffer));
 			if(recv > 0)
 			{
-				//printf("buffer:%s\r\n",buffer);
 				BufferWrite(pointer->Recv, temp_buffer, recv);
 				printf("Recv %d bytes\r\n",recv);
 			}
@@ -55,14 +49,14 @@ void *client_processing(void *sock_fd)
 				else
 				{
 
-					close(clientfd);
+					close(pointer->Clientfd);
 					printf("connection closed\r\n");
 					break;
 				}
 			}
 		}
-		if(Statemachine(clientfd,pointer))
-			close(clientfd);
+		if(Statemachine(pointer))
+			close(pointer->Clientfd);
 	}
 	BufferRelease(pointer->Recv);
 	free(pointer);

@@ -10,9 +10,7 @@ enum States
 {
     Recog = 0x00,
     Init = 0x01,
-    GetLen = 0x02,
-    FramePick = 0x03,
-    DataUpdate = 0x04,
+    Datapro = 0x02,
 };
 
 enum Device
@@ -38,7 +36,9 @@ enum DataType
 typedef struct Client
 {
     int Device;
+    int Deviceid;
     int State;
+    int Clientfd;
     Ringbuf *Recv;
 }ClientInfo;
 
@@ -56,7 +56,7 @@ typedef struct ClusterStructure
     struct ClusterStructure *next;
 }ClusterArray;
 
-int Statemachine(int,ClientInfo *);
+int Statemachine(ClientInfo *);
 
 #endif
 
