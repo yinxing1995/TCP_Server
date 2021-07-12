@@ -10,7 +10,8 @@ enum States
 {
     Recog = 0x00,
     Init = 0x01,
-    Datapro = 0x02,
+    Bind = 0x02,
+    Datapro = 0x03,
 };
 
 enum Device
@@ -37,6 +38,7 @@ typedef struct Client
 {
     int Device;
     int Deviceid;
+    int Bindid;
     int State;
     int Clientfd;
     Ringbuf *Recv;

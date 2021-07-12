@@ -7,6 +7,7 @@
 
 #define GATEWAYFLAG "Gateway:"
 #define MONITORFLAG "Monitor:"
+#define BIND "Bind:"
 #define LEN_ID 3
 
 
@@ -60,9 +61,33 @@ int Statemachine(ClientInfo *pointer)
 			if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
 				break;
 			pointer->Deviceid = atoi(tbuf);
-			printf("ID = %d\r\n",pointer->Clientfd);
+			printf("buf = %s\r\n",tbuf);
+			printf("ID = %d\r\n",pointer->Deviceid);
+			
+			if(pointer->Device == Monitor)
+			{
+				pointer->State = Bind;
+				printf("State has been set to Bind\r\n");
+				break;
+			}
 			pointer->State = Datapro;
 			break;
+		case Bind:
+			memset(tbuf,'\0',sizeof(tbuf));
+			if(BufferRead(pointer->Recv,tbuf,strlen(BIND))<0)
+				break;
+			printf("tbuf = %s\r\n",tbuf);
+			if(!strcmp(BIND,tbuf))
+			{
+
+				if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
+					break;
+				pointer->Bindid = atoi(tbuf);
+				printf("Gateway %d binded to Monitor %d\r\n", pointer->Bindid,pointer->Deviceid);
+				pointer->State = Datapro;
+			}
+			else
+				return -1;	
 		case Datapro:
 			break;
 		default:
