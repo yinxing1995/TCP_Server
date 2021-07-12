@@ -25,12 +25,12 @@ void *client_processing(void *sock_fd)
 	struct timeval timeout = {0,0};
 	char temp_buffer[300];
 	char p[500];
-	Ringbuf *ringbuf = BufferInit(p,sizeof(p));
 	ClientInfo *pointer = (ClientInfo *)malloc(sizeof(ClientInfo));
 	/*
 	int State = Recog;
 	int Device = Unknown;
 	*/
+	pointer->Recv = BufferInit(p,sizeof(p));
 	pointer->State = Recog;
 	pointer->Device = Unknown;
 	while(1)
@@ -45,7 +45,7 @@ void *client_processing(void *sock_fd)
 			if(recv > 0)
 			{
 				//printf("buffer:%s\r\n",buffer);
-				BufferWrite(ringbuf, temp_buffer, recv);
+				BufferWrite(pointer->Recv, temp_buffer, recv);
 				printf("Recv %d bytes\r\n",recv);
 			}
 			else
@@ -61,10 +61,11 @@ void *client_processing(void *sock_fd)
 				}
 			}
 		}
-		if(Statemachine(ringbuf,clientfd,pointer))
+		if(Statemachine(clientfd,pointer))
 			close(clientfd);
 	}
-	BufferRelease(ringbuf);
+	BufferRelease(pointer->Recv);
+	free(pointer);
 }	
 
 int main(int argc, char *argv[])

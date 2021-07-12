@@ -39,6 +39,7 @@ typedef struct Client
 {
     int Device;
     int State;
+    Ringbuf *Recv;
 }ClientInfo;
 
 typedef struct ClusterStructure
@@ -55,7 +56,7 @@ typedef struct ClusterStructure
     struct ClusterStructure *next;
 }ClusterArray;
 
-int Statemachine(Ringbuf *, int,ClientInfo *);
+int Statemachine(int,ClientInfo *);
 
 #endif
 
