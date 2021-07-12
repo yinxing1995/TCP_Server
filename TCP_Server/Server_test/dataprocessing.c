@@ -9,8 +9,6 @@
 #define MONITORFLAG "Monitor:"
 #define LEN_ID 3
 
-//static int State = Recog;
-//static int Device = Gateway;
 
 int Statemachine(ClientInfo *pointer)
 {
@@ -61,8 +59,7 @@ int Statemachine(ClientInfo *pointer)
 			memset(tbuf,'\0',sizeof(tbuf));
 			if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
 				break;
-			printf("tbuf = %s\r\n",tbuf);
-			pointer->Clientfd = atoi(tbuf);
+			pointer->Deviceid = atoi(tbuf);
 			printf("ID = %d\r\n",pointer->Clientfd);
 			pointer->State = Datapro;
 			break;
