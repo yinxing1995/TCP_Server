@@ -29,6 +29,7 @@ void *client_processing(void *sock_fd)
 	pointer->Recv = BufferInit(p,sizeof(p));
 	pointer->State = Recog;
 	pointer->Device = Unknown;
+	pointer->Bind = NULL;
 	while(1)
 	{
 		FD_ZERO(&rfds);
@@ -59,7 +60,10 @@ void *client_processing(void *sock_fd)
 			close(pointer->Clientfd);
 	}
 	BufferRelease(pointer->Recv);
+	if(pointer->Device == Gateway)DeleteGateway(pointer);
+	pointer->Bind->Bind = NULL;
 	free(pointer);
+	pointer = NULL;
 }	
 
 int main(int argc, char *argv[])

@@ -38,10 +38,11 @@ typedef struct Client
 {
     int Device;
     int Deviceid;
-    int Bindid;
+    //int Bindid;
     int State;
     int Clientfd;
     Ringbuf *Recv;
+    struct Client *Bind;
 }ClientInfo;
 
 typedef struct ClusterStructure
@@ -58,7 +59,16 @@ typedef struct ClusterStructure
     struct ClusterStructure *next;
 }ClusterArray;
 
+typedef struct GatewayInfo
+{
+    ClientInfo *Gateway;
+    struct GatewayInfo *next;
+}Gatewaylist;
+
+
 int Statemachine(ClientInfo *);
+void AddGateway(ClientInfo *);
+void DeleteGateway(ClientInfo *);
 
 #endif
 

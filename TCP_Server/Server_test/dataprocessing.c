@@ -10,6 +10,29 @@
 #define BIND "Bind:"
 #define LEN_ID 3
 
+Gatewaylist *G_head = NULL;
+
+static void BindDevice(ClientInfo *pointer, int Gatewayid)
+{
+	Gatewaylist *current = G_head;
+	if(!current)
+	{
+		printf("No Gateway\r\n");
+		return;
+	}
+	while(current->Gateway->Deviceid != Gatewayid)
+	{
+		current = current->next;
+		if(!current)
+		{
+			printf("ID not found\r\n");
+			return;
+		}
+	}
+	current->Gateway->Bind = pointer;
+	pointer->Bind = current->Gateway;
+	printf("Monitor %d binded to Gateway %d\r\n",current->Gateway->Bind->Deviceid,pointer->Bind->Deviceid);
+}
 
 int Statemachine(ClientInfo *pointer)
 {
@@ -61,8 +84,8 @@ int Statemachine(ClientInfo *pointer)
 			if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
 				break;
 			pointer->Deviceid = atoi(tbuf);
-			printf("buf = %s\r\n",tbuf);
-			printf("ID = %d\r\n",pointer->Deviceid);
+			//printf("buf = %s\r\n",tbuf);
+			//printf("ID = %d\r\n",pointer->Deviceid);
 			
 			if(pointer->Device == Monitor)
 			{
@@ -70,20 +93,25 @@ int Statemachine(ClientInfo *pointer)
 				printf("State has been set to Bind\r\n");
 				break;
 			}
-			pointer->State = Datapro;
-			break;
+			else//Gateway
+			{
+				AddGateway(pointer);
+				pointer->State = Datapro;
+				break;
+			}
 		case Bind:
 			memset(tbuf,'\0',sizeof(tbuf));
 			if(BufferRead(pointer->Recv,tbuf,strlen(BIND))<0)
 				break;
-			printf("tbuf = %s\r\n",tbuf);
+			//printf("tbuf = %s\r\n",tbuf);
 			if(!strcmp(BIND,tbuf))
 			{
 
 				if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
 					break;
-				pointer->Bindid = atoi(tbuf);
-				printf("Gateway %d binded to Monitor %d\r\n", pointer->Bindid,pointer->Deviceid);
+				int Bindid = atoi(tbuf);
+				printf("Gateway %d binded to Monitor %d\r\n", Bindid, pointer->Deviceid);
+				BindDevice(pointer,Bindid);
 				pointer->State = Datapro;
 			}
 			else
@@ -96,4 +124,51 @@ int Statemachine(ClientInfo *pointer)
 
 	}
 	return 0;
+}
+
+void AddGateway(ClientInfo *pointer)
+{
+	Gatewaylist *current = G_head;
+	Gatewaylist *temp = (Gatewaylist *)malloc(sizeof(Gatewaylist));
+	temp->Gateway = pointer;
+	temp->next = NULL;
+	if(!current)
+	{
+		current = temp;
+		G_head = current;
+	}
+	else
+	{
+		while(current->next)
+		{
+			current = current->next;
+			//unique ID check here
+		}
+		current->next = temp;
+	}
+	printf("HEAD gateway is %d",G_head->Gateway->Deviceid);
+	return;
+}
+
+void DeleteGateway(ClientInfo *pointer)
+{
+	Gatewaylist *current = G_head;
+	if(!current)
+		return;
+	if(current->Gateway == pointer)
+	{
+		G_head = current->next;
+		free(current);
+		return;
+	}
+	while(current->next->Gateway != pointer)
+	{
+		current = current->next;
+		if(!current->next)
+			return;
+	}
+	Gatewaylist *temp = current->next;
+	current->next = current->next->next;
+	free(temp);
+	return;
 }
