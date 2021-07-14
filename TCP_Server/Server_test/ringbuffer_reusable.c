@@ -68,6 +68,17 @@ int BufferRead(Ringbuf * Buffer, void *dest, uint16_t len)
     return 0;
 }
 
+uint16_t BufferShowRest(Ringbuf *Buffer)
+{
+    uint16_t len = 0;
+    if(Buffer->readpointer <= Buffer->writepointer)
+        len = Buffer->writepointer - Buffer->readpointer;
+    else
+	len = Buffer->max - Buffer->readpointer + Buffer->writepointer + 1;
+    if(!len)
+	return 0;
+}
+
 int BufferSeek(Ringbuf * Buffer, void *dest, uint16_t len)
 {
     uint16_t diff = Buffer->max - Buffer->readpointer + 1;

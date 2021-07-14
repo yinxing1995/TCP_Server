@@ -57,11 +57,15 @@ void *client_processing(void *sock_fd)
 			}
 		}
 		if(Statemachine(pointer))
+		{
 			close(pointer->Clientfd);
+			break;
+		}
 	}
 	BufferRelease(pointer->Recv);
 	if(pointer->Device == Gateway)DeleteGateway(pointer);
-	pointer->Bind->Bind = NULL;
+	if(pointer->Bind)
+		pointer->Bind->Bind = NULL;
 	free(pointer);
 	pointer = NULL;
 }	

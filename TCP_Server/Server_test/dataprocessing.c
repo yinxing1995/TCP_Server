@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <errno.h>
 #include <unistd.h>
 #include "dataprocessing.h"
 
@@ -77,8 +78,8 @@ int Statemachine(ClientInfo *pointer)
 					printf("Overtime\r\n");
 					return -1;
 				}
-				break;
 			}
+			break;
 		case Init:
 			memset(tbuf,'\0',sizeof(tbuf));
 			if(BufferRead(pointer->Recv,tbuf,LEN_ID)<0)
@@ -113,10 +114,34 @@ int Statemachine(ClientInfo *pointer)
 				printf("Gateway %d binded to Monitor %d\r\n", Bindid, pointer->Deviceid);
 				BindDevice(pointer,Bindid);
 				pointer->State = Datapro;
+				break;
 			}
 			else
 				return -1;	
 		case Datapro:
+			;
+			uint16_t size = BufferShowRest(pointer->Recv);
+			if(pointer->Bind)
+			{
+				char *p = (char *)malloc(size);
+				BufferRead(pointer->Recv,p,size);
+				if(write(pointer->Bind->Clientfd,p,size)<=0)
+				{
+					if(errno == EINTR)
+						printf("Do not close socket\r\n");
+					else
+						printf("Device might be offline, please rebind\r\n");
+				}
+				free(p);
+			}
+			else
+			{
+				printf("No bind on this device\r\n");
+				sleep(1);
+				BufferReset(pointer->Recv);
+				if(pointer->Device == Monitor)
+					return -1;
+			}
 			break;
 		default:
 			printf("Unknown error!\r\n");
@@ -146,7 +171,7 @@ void AddGateway(ClientInfo *pointer)
 		}
 		current->next = temp;
 	}
-	printf("HEAD gateway is %d",G_head->Gateway->Deviceid);
+	printf("HEAD gateway is %d/r/n",G_head->Gateway->Deviceid);
 	return;
 }
 

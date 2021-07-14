@@ -17,8 +17,9 @@ typedef struct buffer
 Ringbuf *BufferInit(char *p, uint16_t size);
 int BufferWrite(Ringbuf *, void *sour, uint16_t len);
 int BufferRead(Ringbuf *,void *dest, uint16_t len);
+uint16_t BufferShowRest(Ringbuf *);
 int BufferSeek(Ringbuf *,void *dest, uint16_t len);
 void BufferRelease(Ringbuf *);
-
+void BufferReset(Ringbuf *);
 
 #endif
