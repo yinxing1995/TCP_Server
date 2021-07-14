@@ -130,7 +130,10 @@ int Statemachine(ClientInfo *pointer)
 					if(errno == EINTR)
 						printf("Do not close socket\r\n");
 					else
-						printf("Device might be offline, please rebind\r\n");
+					{
+						if(size)
+							printf("Device might be offline, please rebind\r\n");
+					}
 				}
 				free(p);
 			}
