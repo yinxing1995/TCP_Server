@@ -171,7 +171,7 @@ void AddGateway(ClientInfo *pointer)
 		}
 		current->next = temp;
 	}
-	printf("HEAD gateway is %d/r/n",G_head->Gateway->Deviceid);
+	printf("HEAD gateway is %d\r\n",G_head->Gateway->Deviceid);
 	return;
 }
 
