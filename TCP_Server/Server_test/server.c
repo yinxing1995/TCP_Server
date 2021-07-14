@@ -51,7 +51,6 @@ void *client_processing(void *sock_fd)
 				{
 
 					close(pointer->Clientfd);
-					printf("connection closed\r\n");
 					break;
 				}
 			}
@@ -62,6 +61,7 @@ void *client_processing(void *sock_fd)
 			break;
 		}
 	}
+	printf("connection closed\r\n");
 	BufferRelease(pointer->Recv);
 	if(pointer->Device == Gateway)DeleteGateway(pointer);
 	if(pointer->Bind)
