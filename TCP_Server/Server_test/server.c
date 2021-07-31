@@ -41,7 +41,11 @@ void *client_processing(void *sock_fd)
 			if(recv > 0)
 			{
 				BufferWrite(pointer->Recv, temp_buffer, recv);
-				printf("Recv %d bytes\r\n",recv);
+				if(pointer->Device == Gateway)
+					printf("[Gateway]");
+				else
+					printf("[Client]");
+				printf("Recv %d bytes from device %03d\r\n",recv,pointer->Deviceid);
 			}
 			else
 			{
