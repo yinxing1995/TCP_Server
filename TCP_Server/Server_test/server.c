@@ -13,9 +13,13 @@
 #include "ringbuffer_reusable.h"
 #include "dataprocessing.h"
 extern int errno;
+pthread_mutex_t mutex_link;
 
-static void func(int arg)
-{}
+static void func()
+{
+	printf("PIPE error occurs!!\r\n");
+	return;
+}
 
 void *client_processing(void *sock_fd)
 {
@@ -53,7 +57,7 @@ void *client_processing(void *sock_fd)
 					printf("Do not close socket\r\n");
 				else
 				{
-
+					pthread_mutex_lock(&mutex_link);
 					close(pointer->Clientfd);
 					break;
 				}
@@ -61,21 +65,28 @@ void *client_processing(void *sock_fd)
 		}
 		if(Statemachine(pointer))
 		{
+			pthread_mutex_lock(&mutex_link);
 			close(pointer->Clientfd);
 			break;
 		}
 	}
 	printf("connection closed\r\n");
 	BufferRelease(pointer->Recv);
-	if(pointer->Device == Gateway)DeleteGateway(pointer);
 	if(pointer->Bind)
 		pointer->Bind->Bind = NULL;
+	pthread_mutex_unlock(&mutex_link);
+	pthread_mutex_lock(&mutex_structure);
+	if(pointer->Device == Gateway)DeleteGateway(pointer);
+	pthread_mutex_unlock(&mutex_structure);
 	free(pointer);
 	pointer = NULL;
 }	
 
 int main(int argc, char *argv[])
 {
+	pthread_mutex_init(&mutex_link,NULL);
+	pthread_mutex_init(&mutex_structure,NULL);
+
 	if(argc != 2)
 	{
 		printf("Using:./server port\r\nExample:./server 5005\r\n");
@@ -113,18 +124,27 @@ int main(int argc, char *argv[])
 	}
 
 	//step 4. Receive connection from client
-	int clientfd;
+	int clientfd,connectfd;
 	int socklen = sizeof(struct sockaddr_in);
 	struct sockaddr_in clientaddr;
+	signal(SIGPIPE,func);
 	while(1)
 	{
 		printf("Waiting for connection\r\n");
-		clientfd = accept(listenfd, (struct sockaddr *)&clientaddr, (socklen_t *)&socklen);
+		connectfd = accept(listenfd, (struct sockaddr *)&clientaddr, (socklen_t *)&socklen);
+		if(connectfd <= 0)
+		{
+			perror("connect");
+			printf("connection failed\r\n");
+			continue;
+		}
+		pthread_mutex_lock(&mutex_link);
+		clientfd = connectfd;
+		pthread_mutex_unlock(&mutex_link);
 		printf("Client %s connected\r\n",inet_ntoa(clientaddr.sin_addr));
 		pthread_t tid;
 		pthread_create(&tid, NULL, client_processing, (void *)(&clientfd));
 	}	
-	signal(SIGPIPE,func);
 	/*
 	char buffer[1024];
 

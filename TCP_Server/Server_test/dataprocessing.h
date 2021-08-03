@@ -4,7 +4,9 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include "ringbuffer_reusable.h"
-//typedef struct timer_list timer; 
+#include <pthread.h>
+//typedef struct timer_list timer;
+pthread_mutex_t mutex_structure;
 
 enum States
 {

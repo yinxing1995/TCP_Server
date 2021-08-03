@@ -96,7 +96,9 @@ int Statemachine(ClientInfo *pointer)
 			}
 			else//Gateway
 			{
+				pthread_mutex_lock(&mutex_structure);
 				AddGateway(pointer);
+				pthread_mutex_unlock(&mutex_structure);
 				pointer->State = Datapro;
 				break;
 			}
